@@ -27,6 +27,8 @@ addLayer("X", {
     startData() { return {
         unlocked: true,
 		points: new Decimal(0),
+        skill1acttime: n(0),
+        skill1cooldown: n(0),
     }},
     color: "#FFFFFF",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -49,22 +51,34 @@ addLayer("X", {
 	    if (isEndgame()) dev=n(0)
 	    return dev
 	   },
-    update(){
+    update(diff){
         player.X.points = player.points
         player.devSpeed = tmp.X.devSpeedCal
+        if (player.X.skill1acttime.gt(0)) player.X.skill1acttime = player.X.skill1acttime.sub(diff)
+        if (player.X.skill1acttime.lt(0)) {player.X.skill1acttime = n(0)
+            player.X.skill1cooldown = n(600)}
+        if (player.X.skill1cooldown.gt(0)) player.X.skill1cooldown = player.X.skill1cooldown.sub(diff)
+            if (player.X.skill1cooldown.lt(0)) player.X.skill1cooldown = n(0)
     },
     doReset(resettingLayer){
-        if (resettingLayer == 'CB') layerDataReset('X', [])
+        layerDataReset('X', [])
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [],
     layerShown(){return true},
     clickables: {
         11: {
-            display() {return "点击以获得 "+tmp.X.Xunonclick+" 逊"},
+            display() {return "点击以获得 "+format(tmp.X.Xunonclick)+" 逊"},
             canClick() {return true},
             onClick() {player.points=player.points.add(tmp.X.Xunonclick)}
-        }
+        },
+        12: {
+            title:'增加生产',
+            display() {return "使角色生产x1.5<br>剩余时间："+format(player.X.skill1acttime)+"s<br>冷却时间："+format(player.X.skill1cooldown)+"s"},
+            unlocked() {return hasUpgrade('X', 263)},
+            canClick() {return hasUpgrade('X', 263)&&player.X.skill1acttime.lte(0)&&player.X.skill1cooldown.lte(0)},
+            onClick() {player.X.skill1acttime = n(10)}
+        },
     },
     buyables: {
         11: {
@@ -154,6 +168,39 @@ addLayer("X", {
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
         },
+        24: {
+            title:"角色 9",
+            cost(x) { return new Decimal(1.15).pow(x).times(1e9) },
+            display() { return format(tmp.X.Character9Prod)+"逊/s<br>购买了"+getBuyableAmount(this.layer, this.id)+"次<br>消耗："+format(this.cost()) },
+            canAfford() { return player.points.gte(this.cost()) },
+            unlocked() {return n(getBuyableAmount(this.layer, 23)).gte(1)&&hasMilestone('CB', 1)},
+            buy() {
+                player.points = player.points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+        },
+        25: {
+            title:"角色 10",
+            cost(x) { return new Decimal(1.15).pow(x).times(1e10) },
+            display() { return format(tmp.X.Character10Prod)+"逊/s<br>购买了"+getBuyableAmount(this.layer, this.id)+"次<br>消耗："+format(this.cost()) },
+            canAfford() { return player.points.gte(this.cost()) },
+            unlocked() {return n(getBuyableAmount(this.layer, 24)).gte(1)&&hasMilestone('CB', 1)},
+            buy() {
+                player.points = player.points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+        },
+        31: {
+            title:"角色 11",
+            cost(x) { return new Decimal(1.15).pow(x).times(5e11) },
+            display() { return format(tmp.X.Character11Prod)+"逊/s<br>购买了"+getBuyableAmount(this.layer, this.id)+"次<br>消耗："+format(this.cost()) },
+            canAfford() { return player.points.gte(this.cost()) },
+            unlocked() {return n(getBuyableAmount(this.layer, 25)).gte(1)&&hasMilestone('CB', 2)},
+            buy() {
+                player.points = player.points.sub(this.cost())
+                setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+            },
+        },
     },
     upgrades: {
         11: {
@@ -205,6 +252,13 @@ addLayer("X", {
             unlocked() {return getBuyableAmount(this.layer, 12).gt(49)},
             onPurchase() {player.points = player.points.sub(120000)},
         },
+        24: {
+            title: "角色2升级 IV",
+            description: "角色2生产x2",
+            cost: new Decimal(15000000),
+            unlocked() {return getBuyableAmount(this.layer, 12).gt(99)},
+            onPurchase() {player.points = player.points.sub(15000000)},
+        },
         31: {
             title: "角色3升级 I",
             description: "角色3生产x2",
@@ -226,6 +280,13 @@ addLayer("X", {
             unlocked() {return getBuyableAmount(this.layer, 13).gt(49)},
             onPurchase() {player.points = player.points.sub(1500000)},
         },
+        34: {
+            title: "角色3升级 IV",
+            description: "角色3生产x2",
+            cost: new Decimal(1e9),
+            unlocked() {return getBuyableAmount(this.layer, 13).gt(99)},
+            onPurchase() {player.points = player.points.sub(1e9)},
+        },
         41: {
             title: "角色4升级 I",
             description: "角色4生产x2",
@@ -240,6 +301,13 @@ addLayer("X", {
             unlocked() {return getBuyableAmount(this.layer, 14).gt(24)},
             onPurchase() {player.points = player.points.sub(500000)},
         },
+        43: {
+            title: "角色4升级 III",
+            description: "角色4生产x2",
+            cost: new Decimal(10000000),
+            unlocked() {return getBuyableAmount(this.layer, 14).gt(49)},
+            onPurchase() {player.points = player.points.sub(10000000)},
+        },
         51: {
             title: "角色5升级 I",
             description: "角色5生产x2",
@@ -247,12 +315,75 @@ addLayer("X", {
             unlocked() {return getBuyableAmount(this.layer, 15).gt(9)},
             onPurchase() {player.points = player.points.sub(1000000)},
         },
+        52: {
+            title: "角色5升级 II",
+            description: "角色5生产x2",
+            cost: new Decimal(6500000),
+            unlocked() {return getBuyableAmount(this.layer, 15).gt(24)},
+            onPurchase() {player.points = player.points.sub(6500000)},
+        },
+        53: {
+            title: "角色5升级 III",
+            description: "角色5生产x2",
+            cost: new Decimal(120000000),
+            unlocked() {return getBuyableAmount(this.layer, 15).gt(49)},
+            onPurchase() {player.points = player.points.sub(120000000)},
+        },
         61: {
             title: "角色6升级 I",
             description: "角色6生产x2",
             cost: new Decimal(5000000),
             unlocked() {return getBuyableAmount(this.layer, 21).gt(9)},
             onPurchase() {player.points = player.points.sub(5000000)},
+        },
+        62: {
+            title: "角色6升级 II",
+            description: "角色6生产x2",
+            cost: new Decimal(75000000),
+            unlocked() {return getBuyableAmount(this.layer, 21).gt(24)},
+            onPurchase() {player.points = player.points.sub(75000000)},
+        },
+        71: {
+            title: "角色7升级 I",
+            description: "角色7生产x2",
+            cost: new Decimal(60000000),
+            unlocked() {return getBuyableAmount(this.layer, 22).gt(9)},
+            onPurchase() {player.points = player.points.sub(60000000)},
+        },
+        72: {
+            title: "角色7升级 II",
+            description: "角色7生产x2",
+            cost: new Decimal(500000000),
+            unlocked() {return getBuyableAmount(this.layer, 22).gt(24)},
+            onPurchase() {player.points = player.points.sub(500000000)},
+        },
+        81: {
+            title: "角色8升级 I",
+            description: "角色8生产x2",
+            cost: new Decimal(500000000),
+            unlocked() {return getBuyableAmount(this.layer, 23).gt(9)},
+            onPurchase() {player.points = player.points.sub(500000000)},
+        },
+        82: {
+            title: "角色8升级 II",
+            description: "角色8生产x2",
+            cost: new Decimal(4e9),
+            unlocked() {return getBuyableAmount(this.layer, 23).gt(24)},
+            onPurchase() {player.points = player.points.sub(4e9)},
+        },
+        91: {
+            title: "角色9升级 I",
+            description: "角色9生产x2",
+            cost: new Decimal(5e9),
+            unlocked() {return getBuyableAmount(this.layer, 24).gt(9)},
+            onPurchase() {player.points = player.points.sub(5e9)},
+        },
+        101: {
+            title: "角色10升级 I",
+            description: "角色10生产x2",
+            cost: new Decimal(5e10),
+            unlocked() {return getBuyableAmount(this.layer, 25).gt(9)},
+            onPurchase() {player.points = player.points.sub(5e10)},
         },
         261: {
             title: "A Boost",
@@ -265,9 +396,76 @@ addLayer("X", {
             onPurchase() {if (!hasMilestone('CB', 0))player.points = player.points.sub(1000000)
             },
         },
+        262: {
+            title: "Click Boost",
+            description: "点击获得1%每秒获取的逊",
+            cost() {a = new Decimal(10000)
+                    return a
+            },
+            unlocked() {return hasMilestone('CB', 1)},
+            onPurchase() {player.points = player.points.sub(10000)
+            },
+        },
+        263: {
+            title: "A Skill",
+            description: "解锁“增加生产”技能：<br>接下来10s内，所有角色生产x1.5，冷却600s",
+            cost() {a = new Decimal(1000000)
+                    return a
+            },
+            unlocked() {return hasMilestone('CB', 1)},
+            onPurchase() {player.points = player.points.sub(1000000)
+            },
+        },
+        264: {
+            title: "Ach Boost",
+            description: "每个成就使角色生产+1%",
+            cost() {a = new Decimal(7500000)
+                    return a
+            },
+            unlocked() {return hasMilestone('CB', 1)},
+            effect() {
+                return player.A.points.times(0.01).add(1)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
+            onPurchase() {player.points = player.points.sub(7500000)
+            },
+        },
+        265: {
+            title: "It's to slow",
+            description: "每个购买的角色使角色生产+0.1%",
+            cost() {a = new Decimal(1e10)
+                    return a
+            },
+            unlocked() {return hasMilestone('CB', 2)},
+            effect() {
+                return tmp.X.allCharacter.times(0.001).add(1)
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
+            onPurchase() {player.points = player.points.sub(1e10)
+            },
+        },
+        266: {
+            title: "A little fast",
+            description: "从1逊开始，逊数量每x10，角色生产+10%",
+            cost() {a = new Decimal(3e10)
+                    return a
+            },
+            unlocked() {return hasMilestone('CB', 2)},
+            effect() {a = player.points.log(10).times(0.1).add(1)
+                if (a.lt(1)) a = n(1)
+                return a
+            },
+            effectDisplay() { return format(upgradeEffect(this.layer, this.id))+"x" },
+            onPurchase() {player.points = player.points.sub(3e10)
+            },
+        },
     },
     Multtoallchars() {a = n(1)
         a = a.times(tmp.CB.effect)
+        if (player.X.skill1acttime.gt(0)) a = a.times(1.5)
+        if (hasUpgrade('X', 264)) a = a.times(upgradeEffect(this.layer, 264))
+        if (hasUpgrade('X', 265)) a = a.times(upgradeEffect(this.layer, 265))
+        if (hasUpgrade('X', 266)) a = a.times(upgradeEffect(this.layer, 266))
         return a
     },
     Character1Prod() {a = n(0.1)
@@ -283,6 +481,7 @@ addLayer("X", {
         if (hasUpgrade('X', 21)) a = a.times(2)
         if (hasUpgrade('X', 22)) a = a.times(2)
         if (hasUpgrade('X', 23)) a = a.times(2)
+        if (hasUpgrade('X', 24)) a = a.times(2)
         return a
     },
     Character3Prod() {a = n(5)
@@ -290,34 +489,72 @@ addLayer("X", {
         if (hasUpgrade('X', 31)) a = a.times(2)
         if (hasUpgrade('X', 32)) a = a.times(2)
         if (hasUpgrade('X', 33)) a = a.times(2)
+        if (hasUpgrade('X', 34)) a = a.times(2)
         return a
     },
     Character4Prod() {a = n(20)
         a = a.times(tmp.X.Multtoallchars)
         if (hasUpgrade('X', 41)) a = a.times(2)
         if (hasUpgrade('X', 42)) a = a.times(2)
+        if (hasUpgrade('X', 43)) a = a.times(2)
         return a
     },
     Character5Prod() {a = n(100)
         a = a.times(tmp.X.Multtoallchars)
         if (hasUpgrade('X', 51)) a = a.times(2)
+        if (hasUpgrade('X', 52)) a = a.times(2)
+        if (hasUpgrade('X', 53)) a = a.times(2)
         return a
     },
     Character6Prod() {a = n(500)
         a = a.times(tmp.X.Multtoallchars)
         if (hasUpgrade('X', 61)) a = a.times(2)
+        if (hasUpgrade('X', 62)) a = a.times(2)
         return a
     },
     Character7Prod() {a = n(1200)
         a = a.times(tmp.X.Multtoallchars)
+        if (hasUpgrade('X', 71)) a = a.times(2)
+        if (hasUpgrade('X', 72)) a = a.times(2)
         return a
     },
     Character8Prod() {a = n(5000)
+        a = a.times(tmp.X.Multtoallchars)
+        if (hasUpgrade('X', 81)) a = a.times(2)
+        if (hasUpgrade('X', 82)) a = a.times(2)
+        return a
+    },
+    Character9Prod() {a = n(20000)
+        a = a.times(tmp.X.Multtoallchars)
+        if (hasUpgrade('X', 91)) a = a.times(2)
+        return a
+    },
+    Character10Prod() {a = n(60000)
+        a = a.times(tmp.X.Multtoallchars)
+        if (hasUpgrade('X', 101)) a = a.times(2)
+        return a
+    },
+    Character11Prod() {a = n(250000)
         a = a.times(tmp.X.Multtoallchars)
         return a
     },
     Xunonclick() {a = n(0.1)
         if (hasMilestone('CB', 0)) a = a.times(10)
+        if (hasUpgrade('X', 262)) a = a.add(getPointGen().times(0.01))
+        return a
+    },
+    allCharacter() {a = n(0)
+        a = a.add(getBuyableAmount('X', 11))
+        a = a.add(getBuyableAmount('X', 12))
+        a = a.add(getBuyableAmount('X', 13))
+        a = a.add(getBuyableAmount('X', 14))
+        a = a.add(getBuyableAmount('X', 15))
+        a = a.add(getBuyableAmount('X', 21))
+        a = a.add(getBuyableAmount('X', 22))
+        a = a.add(getBuyableAmount('X', 23))
+        a = a.add(getBuyableAmount('X', 24))
+        a = a.add(getBuyableAmount('X', 25))
+        a = a.add(getBuyableAmount('X', 31))
         return a
     },
 })
@@ -353,7 +590,7 @@ addLayer("CB", {
     effectDescription() {a = '使角色生产x'+format(tmp.CB.effect)
         return a
     },
-    row: 1, // Row the layer is in on the tree (0 is the first row)
+    row: 2, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [],
     tabFormat: [
         ["display-text", function() { return getPointsDisplay() }],
@@ -361,7 +598,9 @@ addLayer("CB", {
         "prestige-button",
         ["display-text",
             function() { a = '角色提升将会重置所有角色、升级和逊。<br>在1角色提升时，使点击获得逊x10，升级"A boost"不再消耗逊，并解锁2个新的角色。<br>'
-                if (hasMilestone('CB', 0)) a = a + '在2角色提升时，<s>解锁2个新的角色与更多的升级</s>到达Endgame。'
+                if (hasMilestone('CB', 0)) a = a + '在2角色提升时，解锁2个新的角色与更多的升级。<br>'
+                if (hasMilestone('CB', 1)) a = a + '在3角色提升时，解锁1个新的角色与更多的升级，并解锁下一个层级(需要 1e12 逊)。<br>'
+                if (hasMilestone('CB', 2)) a = a + '在4角色提升时，解锁1个新的角色，继续解锁更多的升级。<br>'
                 return a
              }],
     ],
@@ -370,7 +609,17 @@ addLayer("CB", {
             requirementDescription: "1 角色提升",
             effectDescription: "点击获得逊x10，并解锁2个新的角色",
             done() { return player.CB.points.gte(1) },
-        }
+        },
+        1: {
+            requirementDescription: "2 角色提升",
+            effectDescription: "点击获得逊x10，并解锁2个新的角色",
+            done() { return player.CB.points.gte(2) },
+        },
+        2: {
+            requirementDescription: "3 角色提升",
+            effectDescription: "点击获得逊x10，并解锁2个新的角色",
+            done() { return player.CB.points.gte(3) },
+        },
     },
     layerShown(){return player.CB.unlocked||hasUpgrade('X', 261)},
 })

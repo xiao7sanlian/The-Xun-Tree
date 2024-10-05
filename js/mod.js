@@ -4,7 +4,7 @@ let modInfo = {
 	id: "Class 8 Grade 9",
 	author: "QqQeInfinity",
 	pointsName: "逊",
-	modFiles: ["layers.js", "layer-ach.js","tree.js"],
+	modFiles: ["layers.js", "layer-ach.js","layer-jun.js","tree.js"],
 
 	otherLanguageMod: false,// When on, it will ask the player to choose a language at the beginning of the game
 	languageMod: false,// Use when otherLanguageMod is off, default are true -> English, false -> Chinese
@@ -38,8 +38,8 @@ var colors = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.01",
-	name: "Xun And Character Boost",
+	num: "0.02",
+	name: "Pre-Jun Update",
 }
 
 function changelog(){
@@ -48,6 +48,10 @@ function changelog(){
 		<span style="font-size: 17px;">
 			<h3>v0.01 - Xun And Character Boost</h3><br>
 				- 增加了8个角色,一堆升级,角色提升与一堆成就<br>
+				- Endgame:2角色提升<br>
+			<h3>v0.02 - Pre-Jun Update</h3><br>
+				- 增加了3个角色,一堆升级与一堆成就,还有一个新的层级<br>
+				- Endgame:1俊<br>
 			<br><br>
 		`:`
 		<br><br><br><h1>ChangeLog:</h1><br>(No<span style='color: red'><s> Spoiler Warning!</s></span>)<br><br>
@@ -90,6 +94,9 @@ function getPointGen() {
 	gain = gain.add(n(tmp.X.Character6Prod).times(getBuyableAmount('X', 21)))
 	gain = gain.add(n(tmp.X.Character7Prod).times(getBuyableAmount('X', 22)))
 	gain = gain.add(n(tmp.X.Character8Prod).times(getBuyableAmount('X', 23)))
+	gain = gain.add(n(tmp.X.Character9Prod).times(getBuyableAmount('X', 24)))
+	gain = gain.add(n(tmp.X.Character10Prod).times(getBuyableAmount('X', 25)))
+	gain = gain.add(n(tmp.X.Character11Prod).times(getBuyableAmount('X', 31)))
 	return gain
 }
 
@@ -100,7 +107,7 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
-	function() {a = '当前Endgame:2角色提升'
+	function() {a = '当前Endgame:1俊'
 		if(options.ch==undefined && modInfo.otherLanguageMod==true){return '<big><br>You should choose your language first<br>你需要先选择语言</big>'}
 		a = a + '<div class="res">'+displayThingsRes()+'</div><br><div class="vl2"></div></span>'
 		return a
@@ -116,7 +123,7 @@ function displayThingsRes(){
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.CB.points.gte(2)//getBuyableAmount('X', 21).gte(1)
+	return player.J.points.gte(1)//getBuyableAmount('X', 21).gte(1)
 }
 
 // 
