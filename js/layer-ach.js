@@ -275,6 +275,36 @@ addLayer("A", {
             done() {return player.J.points.gte(1)},
             onComplete() {player.A.points = player.A.points.add(1)},
         },
+        361: {
+            name: "What is this?",
+            tooltip:"获得 10 总冬瓜币",
+            done() {return player.J.totaldg.gte(10)},
+            onComplete() {player.A.points = player.A.points.add(1)},
+        },
+        362: {
+            name: "20 DG Coins",
+            tooltip:"获得 20 总冬瓜币",
+            done() {return player.J.totaldg.gte(20)},
+            onComplete() {player.A.points = player.A.points.add(1)},
+        },
+        363: {
+            name: "30 DG Coins",
+            tooltip:"获得 30 总冬瓜币",
+            done() {return player.J.totaldg.gte(30)},
+            onComplete() {player.A.points = player.A.points.add(1)},
+        },
+        364: {
+            name: "50 DG Coins",
+            tooltip:"获得 50 总冬瓜币",
+            done() {return player.J.totaldg.gte(50)},
+            onComplete() {player.A.points = player.A.points.add(1)},
+        },
+        365: {
+            name: "75 DG Coins",
+            tooltip:"获得 75 总冬瓜币",
+            done() {return player.J.totaldg.gte(75)},
+            onComplete() {player.A.points = player.A.points.add(1)},
+        },
     },
     layerShown(){return true},
 })

@@ -466,6 +466,12 @@ addLayer("X", {
         if (hasUpgrade('X', 264)) a = a.times(upgradeEffect(this.layer, 264))
         if (hasUpgrade('X', 265)) a = a.times(upgradeEffect(this.layer, 265))
         if (hasUpgrade('X', 266)) a = a.times(upgradeEffect(this.layer, 266))
+        if (hasUpgrade('J', 11)) a = a.times(upgradeEffect('J', 11))
+        if (hasUpgrade('J', 21)) a = a.times(upgradeEffect('J', 21))
+        if (hasUpgrade('J', 22)) a = a.times(upgradeEffect('J', 22))
+        if (hasUpgrade('J', 31)) a = a.times(upgradeEffect('J', 31))
+        if (hasUpgrade('J', 32)) a = a.times(upgradeEffect('J', 32))
+        if (hasUpgrade('J', 34)) a = a.times(upgradeEffect('J', 34))
         return a
     },
     Character1Prod() {a = n(0.1)
@@ -541,6 +547,7 @@ addLayer("X", {
     Xunonclick() {a = n(0.1)
         if (hasMilestone('CB', 0)) a = a.times(10)
         if (hasUpgrade('X', 262)) a = a.add(getPointGen().times(0.01))
+        if (hasUpgrade('J', 23)) a = a.add(getPointGen().times(0.05))
         return a
     },
     allCharacter() {a = n(0)

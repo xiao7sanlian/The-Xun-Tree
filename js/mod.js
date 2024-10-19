@@ -38,8 +38,8 @@ var colors = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.02",
-	name: "Pre-Jun Update",
+	num: "0.03",
+	name: "Jun Update(Part. I)",
 }
 
 function changelog(){
@@ -52,6 +52,9 @@ function changelog(){
 			<h3>v0.02 - Pre-Jun Update</h3><br>
 				- 增加了3个角色,一堆升级与一堆成就,还有一个新的层级<br>
 				- Endgame:1俊<br>
+			<h3>v0.03 - Jun Update(Part. I)</h3><br>
+				- 增加了一堆升级与冬瓜币<br>
+				- Endgame:75总冬瓜币<br>
 			<br><br>
 		`:`
 		<br><br><br><h1>ChangeLog:</h1><br>(No<span style='color: red'><s> Spoiler Warning!</s></span>)<br><br>
@@ -107,7 +110,7 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
-	function() {a = '当前Endgame:1俊'
+	function() {a = '当前Endgame:75冬瓜币'
 		if(options.ch==undefined && modInfo.otherLanguageMod==true){return '<big><br>You should choose your language first<br>你需要先选择语言</big>'}
 		a = a + '<div class="res">'+displayThingsRes()+'</div><br><div class="vl2"></div></span>'
 		return a
@@ -117,13 +120,14 @@ var displayThings = [
 // You can write stuff here to display them on top-left corner easily
 function displayThingsRes(){
 	a = '逊: '+format(player.points)
-	if (hasAchievement('A', 321)) a = a +' | 角色提升：'+format(player.CB.points)+' | '
+	if (hasAchievement('A', 321)&&!hasAchievement('A', 341)) a = a +' | 角色提升：'+format(player.CB.points)
+	if (hasAchievement('A', 341)) a = a +' | 俊：'+format(player.J.points)+' | 总冬瓜币：'+format(player.J.totaldg)
 	return a
 }
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.J.points.gte(1)//getBuyableAmount('X', 21).gte(1)
+	return player.J.totaldg.gte(75)//player.J.points.gte(1)//getBuyableAmount('X', 21).gte(1)
 }
 
 // 
